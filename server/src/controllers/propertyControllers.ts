@@ -10,10 +10,7 @@ const prisma = new PrismaClient();
 
 const s3Client = new S3Client({
   region:
-    process.env.AWS_REGION ||
-    (() => {
-      throw new Error("AWS_REGION environment variable is required");
-    })(),
+    process.env.AWS_REGION ?? "ap-southeast-2"
 });
 
 export const getProperties = async (
@@ -52,7 +49,7 @@ export const getProperties = async (
     }
     if (priceMax) {
       whereConditions.push(
-        Prisma.sql`p."pricePerMonth" <= ${Number(priceMin)}`
+        Prisma.sql`p."pricePerMonth" <= ${Number(priceMax)}`
       );
     }
 

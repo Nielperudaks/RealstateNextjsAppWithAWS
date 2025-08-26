@@ -181,12 +181,12 @@ body,
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgb(191 219 254);
+  background-color: hsl(45, 100%, 92%);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(147 197 253);
+  background-color: hsl(44, 100%, 95%);
 }
 
 @layer base {
