@@ -1,3 +1,4 @@
+"use client"
 import Card from '@/components/card/Card';
 import CardCompact from '@/components/card/CardCompact';
 import { useAddFavoritePropertyMutation, useGetAuthUserQuery, useGetPropertiesQuery, useRemoveFavoritePropertyMutation } from '@/state/api'
@@ -11,7 +12,6 @@ const Listings = () => {
     const [removeFavorite] = useRemoveFavoritePropertyMutation();
     const viewMode = useAppSelector((state) => state.global.viewMode);
     const filters = useAppSelector((state) => state.global.filters);
-    const tenant = authUser?.userRole;
 
     const {
         data: properties,
@@ -23,7 +23,7 @@ const Listings = () => {
         if(!authUser){
             return
         }
-        const isFavorite = authUser.userInfo.favorites.some(
+        const isFavorite = authUser.userInfo.favorites?.some(
             (fav: Property) => fav.id === propertyId
         )
 
@@ -59,7 +59,7 @@ const Listings = () => {
                 key={property.id}
                 property={property}
                 isFavorite={
-                  tenant?.favorites?.some(
+                  authUser?.userInfo?.favorites?.some(
                     (fav: Property) => fav.id === property.id
                   ) || false
                 }

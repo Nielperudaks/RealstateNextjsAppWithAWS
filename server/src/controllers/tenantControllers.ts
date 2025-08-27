@@ -210,7 +210,7 @@ export const removeFavoriteProperty = async (
       },
     });
 
-    res.json(updateTenant)
+    res.json(updatedTenant);
   } catch (error: any) {
     res
       .status(500)

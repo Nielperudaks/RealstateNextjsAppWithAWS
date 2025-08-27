@@ -4,6 +4,12 @@ import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
 import { cleanParams, createNewUserInDatabase } from "@/lib/utils";
 import { FiltersState } from ".";
 
+type User = {
+  cognitoInfo: any;
+  userInfo: Tenant | Manager;
+  userRole: string;
+};
+
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -17,9 +23,10 @@ export const api = createApi({
     },
   }),
   reducerPath: "api",
-  tagTypes: ["Managers", "Tenants", "Properties"],
+  tagTypes: ["Managers", "Tenants", "Properties", "AuthUser"],
   endpoints: (build) => ({
     getAuthUser: build.query<User, void>({
+      providesTags: ["AuthUser"],
       queryFn: async (_, _queryApi, _extraoptions, fetchWithBQ) => {
         try {
           const session = await fetchAuthSession();
@@ -147,6 +154,7 @@ export const api = createApi({
       invalidatesTags: (result) => [
         { type: "Tenants", id: result?.id },
         { type: "Properties", id: "LIST" },
+        "AuthUser",
       ],
     }),
 
@@ -161,6 +169,7 @@ export const api = createApi({
       invalidatesTags: (result) => [
         { type: "Tenants", id: result?.id },
         { type: "Properties", id: "LIST" },
+        "AuthUser",
       ],
     }),
   }),
