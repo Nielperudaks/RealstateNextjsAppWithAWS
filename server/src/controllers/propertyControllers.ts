@@ -4,13 +4,12 @@ import { wktToGeoJSON } from "@terraformer/wkt";
 import { Upload } from "@aws-sdk/lib-storage";
 import { S3Client } from "@aws-sdk/client-s3";
 import axios from "axios";
-import { Location } from "@prisma/client"; 
+import { Location } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 const s3Client = new S3Client({
-  region:
-    process.env.AWS_REGION ?? "ap-southeast-2"
+  region: process.env.AWS_REGION ?? "ap-southeast-2",
 });
 
 export const getProperties = async (
@@ -81,7 +80,9 @@ export const getProperties = async (
 
     if (amenities && amenities !== "any") {
       const amenitiesArray = (amenities as string).split(",");
-      whereConditions.push(Prisma.sql`p.amenities @> ${amenitiesArray}`);
+      whereConditions.push(
+        Prisma.sql`p.amenities @> ${amenitiesArray}::"Amenity"[]`
+      );
     }
 
     if (availableFrom && availableFrom !== "any") {
@@ -281,7 +282,7 @@ export const createProperty = async (
       include: {
         location: true,
         manager: true,
-      }
+      },
     });
 
     res.status(201).json(newProperty);

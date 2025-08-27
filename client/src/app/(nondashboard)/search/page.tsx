@@ -1,21 +1,23 @@
 "use client";
-import { NAVBAR_HEIGHT } from "@/lib/constants";
-import { useAppDispatch, useAppSelector } from "@/state/redux";
+import { useAppDispatch } from "@/state/redux";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
 import FiltersBar from "./FiltersBar";
 import FiltersFull from "./FiltersFull";
 import { cleanParams } from "@/lib/utils";
 import { setFilters } from "@/state";
 import Map from "./Map";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import Listings from "./Listings";
 
 const SearchPage = () => {
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
-  const isFiltersFullOpen = useAppSelector(
-    (state) => state.global.isFiltersFullOpen
-  );
 
   useEffect(() => {
     const initialFilters = Array.from(searchParams.entries()).reduce(
@@ -43,22 +45,21 @@ const SearchPage = () => {
         height: `calc(85vh )`,
       }}
     >
-      <FiltersBar />
-      <div className="flex justify-between flex-1 overflow-hidden gap-3 mb-5">
-        <div
-          className={`h-full overflow-auto transition-all duration-300 ease-in-out ${
-            isFiltersFullOpen
-              ? "w-3/12 opacity-100 visible"
-              : "w-0 opacity-0 invisible"
-          }`}
-        >
-          <div className="bg-white shadow-md border rounded-xl p-4 h-full overflow-auto pb-10 ">
+      <Sheet>
+        <FiltersBar />
+        <div className="flex justify-between flex-1 overflow-hidden gap-3 mb-5">
+          <Map/>
+          <div className="basis-4/12 overflow-y-auto"><Listings/></div>
+        </div>
+        <SheetContent side="left" className="w-96 sm:max-w-96">
+          <SheetHeader>
+            <SheetTitle>Filters</SheetTitle>
+          </SheetHeader>
+          <div className="flex-1 overflow-auto px-4 pb-4">
             <FiltersFull />
           </div>
-        </div>
-        <Map/>
-        <div className="basis-4/12 overflow-y-auto">{/* <Listings/> */}</div>
-      </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

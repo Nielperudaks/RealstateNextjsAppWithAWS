@@ -1,4 +1,4 @@
-import { setFilters, setViewMode, toggleFiltersFullOpen } from "@/state";
+import { setFilters, setViewMode } from "@/state";
 import { useAppSelector } from "@/state/redux";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { debounce } from "lodash";
 import { cleanParams, cn, formatPriceValue } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Filter, Grid, Icon, List, Search } from "lucide-react";
+import { Filter, Grid, List, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -16,15 +16,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PropertyTypeIcons } from "@/lib/constants";
+import { SheetTrigger } from "@/components/ui/sheet";
 
 const FiltersBar = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const pathname = usePathname();
   const filters = useAppSelector((state) => state.global.filters);
-  const isFiltersFullOpen = useAppSelector(
-    (state) => state.global.isFiltersFullOpen
-  );
   const viewMode = useAppSelector((state) => state.global.viewMode);
   const [searchInput, setSearchInput] = useState(filters.location);
 
@@ -70,17 +68,15 @@ const FiltersBar = () => {
     <div className="flex justify-between items-center w-full py-5">
       {/* filters */}
       <div className="flex justify-between items-center gap-4 p-2">
-        <Button
-          variant="outline"
-          className={cn(
-            "gap-2 rounded-xl border-primary hover:bg-secondary text-primary",
-            isFiltersFullOpen && "bg-primary text-primary-foreground"
-          )}
-          onClick={() => dispatch(toggleFiltersFullOpen())}
-        >
-          <Filter className="w-4 h-4" />
-          <span className="">All Filters</span>
-        </Button>
+        <SheetTrigger asChild>
+          <Button
+            variant="outline"
+            className="gap-2 rounded-xl border-primary hover:bg-secondary text-primary"
+          >
+            <Filter className="w-4 h-4" />
+            <span className="">All Filters</span>
+          </Button>
+        </SheetTrigger>
 
         {/* search location */}
         <div className="flex items-center">
@@ -207,9 +203,11 @@ const FiltersBar = () => {
             variant="ghost"
             className={cn(
               "px-3 py-1 rounded-none rounded-l-xl hover:bg-secondary border-primary text-primary",
-              viewMode === "list" ? "bg-primary text-primary-foreground  hover:bg-primary/90 hover:text-primary-foreground" : ""
+              viewMode === "list"
+                ? "bg-primary text-primary-foreground  hover:bg-primary/90 hover:text-primary-foreground"
+                : ""
             )}
-            onClick={()=>dispatch(setViewMode("list"))}
+            onClick={() => dispatch(setViewMode("list"))}
           >
             <List className="w-4 h-4" />
           </Button>
@@ -217,9 +215,11 @@ const FiltersBar = () => {
             variant="ghost"
             className={cn(
               "px-3 py-1 rounded-none rounded-r-xl hover:bg-secondary border-primary text-primary",
-              viewMode === "grid" ? "bg-primary text-primary-foreground  hover:bg-primary/90 hover:text-primary-foreground" : ""
+              viewMode === "grid"
+                ? "bg-primary text-primary-foreground  hover:bg-primary/90 hover:text-primary-foreground"
+                : ""
             )}
-            onClick={()=>dispatch(setViewMode("grid"))}
+            onClick={() => dispatch(setViewMode("grid"))}
           >
             <Grid className="w-4 h-4" />
           </Button>

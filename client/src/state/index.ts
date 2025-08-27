@@ -8,7 +8,7 @@ interface InitialStateTypes{
 
 export const initialState: InitialStateTypes = {
   filters:{
-    location: "Manila",
+    location: "Los Angeles",
   beds: "any",
   baths: "any",
   propertyType: "any",
@@ -16,7 +16,7 @@ export const initialState: InitialStateTypes = {
   availableFrom: "any",
   priceRange: [null, null],
   squareFeet:  [null, null],
-  coordinates: [120.9842, 14.5995]
+  coordinates: [-118.25, 34.05] //120.9842, 14.5995 manila
   },
   isFiltersFullOpen: false,
   viewMode: "grid"

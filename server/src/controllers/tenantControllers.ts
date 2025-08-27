@@ -172,6 +172,7 @@ export const addFavoriteProperties = async (
         },
       });
       res.json(updatedTenant);
+      console.log("updated tenant: "+updatedTenant);
     } else {
       res.status(409).json({ message: "property already added to favorites" });
     }

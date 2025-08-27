@@ -1,12 +1,11 @@
 "use client";
 import React, { useEffect, useRef } from "react";
-import mopboxgl from "mapbox-gl";
+import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useAppSelector } from "@/state/redux";
 import { useGetPropertiesQuery } from "@/state/api";
-import mapboxgl from "mapbox-gl";
 import { Property } from "@/types/prismaTypes";
-mopboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 const Map = () => {
   const mapContainerRef = useRef(null);
@@ -24,7 +23,6 @@ const Map = () => {
     if (isLoading || isError || !properties) {
       return;
     }
-
     const map = new mapboxgl.Map({
       container: mapContainerRef.current!,
       style: "mapbox://styles/nielperuda/cmesi1y6s00gb01rk2ro35rdr",
@@ -32,18 +30,19 @@ const Map = () => {
       zoom: 12,
     });
 
-    properties.forEach((property)=>{
-      const marker = createPropertyMarker(property, map);
-      const markerElement = marker.getElement();
-      const path = markerElement.querySelector("path[fill='#3fb1ce']");
-      if(path) path.setAttribute("fill", "#000000");
-    }
-    )
+    map.on('load', () => {
+      properties.forEach((property)=>{
+        const marker = createPropertyMarker(property, map);
+        const markerElement = marker.getElement();
+        const path = markerElement.querySelector("path[fill='#3fb1ce']");
+        if(path) path.setAttribute("fill", "#000000");
+      });
 
-    const resizeMap = () =>setTimeout(() => map.resize(), 500);
-    resizeMap();
+      // Resize map after it's fully loaded
+      setTimeout(() => map.resize(), 100);
+    });
 
-    return () =>map.remove();
+    return () => map.remove();
   });
 
   if (isLoading) return <>Loading...</>;

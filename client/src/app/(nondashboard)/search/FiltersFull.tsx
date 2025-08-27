@@ -15,10 +15,10 @@ import { initialState, setFilters } from "@/state";
 import { useAppSelector } from "@/state/redux";
 import { debounce } from "lodash";
 import { Search } from "lucide-react";
-import { Slabo_13px } from "next/font/google";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
+import { SheetClose } from "@/components/ui/sheet";
 
 const FiltersFull = () => {
   const dispatch = useDispatch();
@@ -26,9 +26,6 @@ const FiltersFull = () => {
   const pathname = usePathname();
   const filters = useAppSelector((state) => state.global.filters);
   const [localFilters, setLocalFilters] = useState(initialState.filters);
-  const isFiltersFullOpen = useAppSelector(
-    (state) => state.global.isFiltersFullOpen
-  );
 
   const updateURL = debounce((newFilters) => {
     const cleanFilters = cleanParams(newFilters);
@@ -63,8 +60,6 @@ const FiltersFull = () => {
         : [...prev.amenities, amenity]
     }))
   }
-
-  if (!isFiltersFullOpen) return null;
 
   return (
     <div>
@@ -259,12 +254,14 @@ const FiltersFull = () => {
 
       {/* Apply and Reset buttons */}
       <div className="flex gap-4 mt-6">
-        <Button
-          onClick={handleSubmit}
-          className="flex-1 bg-primary text-primary-foreground  rounded-xl"
-        >
-          APPLY
-        </Button>
+        <SheetClose asChild>
+          <Button
+            onClick={handleSubmit}
+            className="flex-1 bg-primary text-primary-foreground  rounded-xl"
+          >
+            APPLY
+          </Button>
+        </SheetClose>
         <Button
           onClick={handleReset}
           variant="outline"
