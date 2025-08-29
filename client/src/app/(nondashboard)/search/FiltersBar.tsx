@@ -63,6 +63,29 @@ const FiltersBar = () => {
     dispatch(setFilters(newFilters));
     updateURL(newFilters);
   };
+  const handleLocationSearch = async () => {
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+          searchInput
+        )}.json?access_token=${
+          process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+        }&fuzzyMatch=true`
+      );
+      const data = await response.json();
+      if (data.features && data.features.length > 0) {
+        const [lng, lat] = data.features[0].center;
+        dispatch(
+          setFilters({
+            location: searchInput,
+            coordinates: [lng, lat],
+          })
+        );
+      }
+    } catch (err) {
+      console.error("error search location: ", err);
+    }
+  };
 
   return (
     <div className="flex justify-between items-center w-full py-5">
@@ -86,7 +109,10 @@ const FiltersBar = () => {
             onChange={(e) => setSearchInput(e.target.value)}
             className="w-40 rounded-l-xl rounded-r-none border-primary border-r-0"
           />
-          <Button className="rounded-r-xl rounded-l-none border-l-none border-primary shadow-none border cursor-pointer">
+          <Button
+            onClick={handleLocationSearch}
+            className="rounded-r-xl rounded-l-none border-l-none border-primary shadow-none border cursor-pointer"
+          >
             <Search className="w-4 h-4" />
           </Button>
         </div>

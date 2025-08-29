@@ -69,16 +69,16 @@ const Listings = () => {
               />
             ) : (
               <CardCompact
-                // key={property.id}
-                // property={property}
-                // isFavorite={
-                //   tenant?.favorites?.some(
-                //     (fav: Property) => fav.id === property.id
-                //   ) || false
-                // }
-                // onFavoriteToggle={() => handleFavoriteToggle(property.id)}
-                // showFavoriteButton={!!authUser}
-                // propertyLink={`/search/${property.id}`}
+                key={property.id}
+                property={property}
+                isFavorite={
+                  authUser?.userInfo?.favorites?.some(
+                    (fav: Property) => fav.id === property.id
+                  ) || false
+                }
+                onFavoriteToggle={() => handleFavoriteToggle(property.id)}
+                showFavoriteButton={!!authUser}
+                propertyLink={`/search/${property.id}`}
               />
             )
           )}
