@@ -44,25 +44,25 @@ const PropertyOverview = ({ propertyId }: PropertyOverviewProps) => {
       </div>
 
       {/* Details */}
-      <div className="border border-primary-200 rounded-xl p-6 mb-6">
-        <div className="flex justify-between items-center gap-4 px-5">
+      <div className=" border border-primary-200 rounded-xl p-6 mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 px-5">
           <div>
             <div className="text-sm text-gray-500">Monthly Rent</div>
             <div className="font-semibold">
               ${property.pricePerMonth.toLocaleString()}
             </div>
           </div>
-          <div className="border-l border-gray-300 h-10"></div>
+          <div className="border-b w-full md:border-l md:h-10 md:w-0 border-gray-300 "></div>
           <div>
             <div className="text-sm text-gray-500">Bedrooms</div>
             <div className="font-semibold">{property.beds} bd</div>
           </div>
-          <div className="border-l border-gray-300 h-10"></div>
+          <div className="border-b w-full md:border-l md:h-10 md:w-0 border-gray-300 "></div>
           <div>
             <div className="text-sm text-gray-500">Bathrooms</div>
             <div className="font-semibold">{property.baths} ba</div>
           </div>
-          <div className="border-l border-gray-300 h-10"></div>
+          <div className="border-b w-full md:border-l md:h-10 md:w-0 border-gray-300 "></div>
           <div>
             <div className="text-sm text-gray-500">Square Feet</div>
             <div className="font-semibold">

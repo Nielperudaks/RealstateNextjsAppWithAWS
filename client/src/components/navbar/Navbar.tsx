@@ -71,7 +71,7 @@ const Navbar04Page = () => {
         )}
         <div className="flex items-center gap-3">
           <Logo />
-          <h1 className="text-xl font-bold">Rentiful</h1>
+          <h1 className="font-bold text-2xl text-primary">Rent<span className="font-light">ease</span></h1>
         </div>
 
         {/* Desktop Menu */}
@@ -101,16 +101,16 @@ const Navbar04Page = () => {
           </Button>
         )}
 
-        {!isDashboardPage && <NavMenu className="hidden md:block" />}
+        {!isDashboardPage}
 
         <div className="flex items-center gap-4">
           {authUser ? (
             <>
-              <div className="relative hidden md:block ">
+              <div className="relative  md:block ">
                 <MessageCircle className="w-6 h-6 cursor-point hover:text-primary" />
                 <span className="absolute top-0 right-0 w-2 h-2 bg-primary  rounded-full"></span>
               </div>
-              <div className="relative hidden md:block ">
+              <div className="relative  md:block ">
                 <Bell className="w-6 h-6 cursor-point hover:text-primary " />
                 <span className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full"></span>
               </div>
@@ -179,10 +179,7 @@ const Navbar04Page = () => {
             </>
           )}
 
-          {/* Mobile Menu */}
-          <div className="md:hidden">
-            <NavigationSheet />
-          </div>
+        
         </div>
       </div>
     </nav>

@@ -11,8 +11,8 @@ import {
 import React from "react";
 
 const Residences = () => {
-  const { data: authUser } = useGetAuthUserQuery();
-  const { data: tenant } = useGetTenantQuery(
+  const { data: authUser, error: authError } = useGetAuthUserQuery();
+  const { data: tenant, error: tenantError } = useGetTenantQuery(
     authUser?.cognitoInfo?.userId || "",
     {
       skip: !authUser?.cognitoInfo?.userId,
@@ -21,14 +21,54 @@ const Residences = () => {
 
   const {
     data: currentResidences,
-    isLoading,
-    error,
+    isLoading: residencesLoading,
+    error: residencesError,
   } = useGetCurrentResidencesQuery(authUser?.cognitoInfo?.userId || "", {
     skip: !authUser?.cognitoInfo?.userId,
   });
 
+  const isLoading = residencesLoading;
+
+  // Helper function to extract error message
+  const getErrorMessage = (error: any) => {
+    if (!error) return "Unknown error";
+    if (typeof error === "string") return error;
+    if (error.message) return error.message;
+    if (error.data?.message) return error.data.message;
+    if (error.status) return `Error ${error.status}`;
+    return "Unknown error";
+  };
+
   if (isLoading) return <Loading />;
-  if (error) return <div>Error loading current residences</div>;
+
+  if (authError)
+    return (
+      <div className="p-4 text-red-600">
+        Error loading user authentication: {getErrorMessage(authError)}
+      </div>
+    );
+
+  if (!authUser?.cognitoInfo?.userId) {
+    return (
+      <div className="p-4 text-yellow-600">
+        No authenticated user found. Please log in.
+      </div>
+    );
+  }
+
+  if (tenantError)
+    return (
+      <div className="p-4 text-red-600">
+        Error loading tenant data: {getErrorMessage(tenantError)}
+      </div>
+    );
+
+  if (residencesError)
+    return (
+      <div className="p-4 text-red-600">
+        Error loading current residences: {getErrorMessage(residencesError)}
+      </div>
+    );
 
   return (
     <div className="dashboard-container">

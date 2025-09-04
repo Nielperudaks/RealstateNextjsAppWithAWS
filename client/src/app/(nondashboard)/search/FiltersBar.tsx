@@ -1,12 +1,12 @@
 import { setFilters, setViewMode } from "@/state";
 import { useAppSelector } from "@/state/redux";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { debounce } from "lodash";
 import { cleanParams, cn, formatPriceValue } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Filter, Grid, List, Search } from "lucide-react";
+import { Filter, Grid, List, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -24,7 +24,16 @@ const FiltersBar = () => {
   const pathname = usePathname();
   const filters = useAppSelector((state) => state.global.filters);
   const viewMode = useAppSelector((state) => state.global.viewMode);
-  const [searchInput, setSearchInput] = useState(filters.location);
+  const [searchInput, setSearchInput] = useState(
+    filters.location === "All Locations" ? "" : filters.location
+  );
+
+  // Sync search input with filters
+  useEffect(() => {
+    setSearchInput(
+      filters.location === "All Locations" ? "" : filters.location
+    );
+  }, [filters.location]);
 
   const updateURL = debounce((newFilters) => {
     const cleanFilters = cleanParams(newFilters);
@@ -54,7 +63,26 @@ const FiltersBar = () => {
       }
       newValue = currentArrayRange;
     } else if (key === "coordinates") {
-      newValue = value === "any" ? [0, 0] : value.map(Number);
+      if (value === "any") {
+        newValue = null; // Let Redux use default coordinates
+      } else {
+        const coords = Array.isArray(value)
+          ? value.map(Number)
+          : [Number(value[0]), Number(value[1])];
+        // Validate coordinates
+        if (
+          coords.length === 2 &&
+          coords[0] >= -180 &&
+          coords[0] <= 180 &&
+          coords[1] >= -90 &&
+          coords[1] <= 90
+        ) {
+          newValue = coords;
+        } else {
+          console.error("Invalid coordinates:", coords);
+          return; // Don't update if coordinates are invalid
+        }
+      }
     } else {
       newValue = value === "any" ? "any" : value;
     }
@@ -75,12 +103,22 @@ const FiltersBar = () => {
       const data = await response.json();
       if (data.features && data.features.length > 0) {
         const [lng, lat] = data.features[0].center;
-        dispatch(
-          setFilters({
-            location: searchInput,
-            coordinates: [lng, lat],
-          })
-        );
+
+        // Validate coordinates before setting
+        if (lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90) {
+          dispatch(
+            setFilters({
+              location: searchInput,
+              coordinates: [lng, lat], // Store as [longitude, latitude]
+              useLocationFilter: true, // Enable location filtering when user searches
+            })
+          );
+        } else {
+          console.error("Invalid coordinates received from Mapbox:", [
+            lng,
+            lat,
+          ]);
+        }
       }
     } catch (err) {
       console.error("error search location: ", err);
@@ -88,16 +126,17 @@ const FiltersBar = () => {
   };
 
   return (
-    <div className="flex justify-between items-center w-full py-5">
+    <div className="flex justify-between items-center w-full py-3 sm:py-5 gap-2">
       {/* filters */}
-      <div className="flex justify-between items-center gap-4 p-2">
+      <div className="flex items-center gap-2 sm:gap-4 p-1 sm:p-2">
         <SheetTrigger asChild>
           <Button
             variant="outline"
-            className="gap-2 rounded-xl border-primary hover:bg-secondary text-primary"
+            className="gap-1 sm:gap-2 rounded-xl border-primary hover:bg-secondary text-primary text-xs sm:text-sm px-2 sm:px-3"
           >
-            <Filter className="w-4 h-4" />
-            <span className="">All Filters</span>
+            <Filter className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">All Filters</span>
+            <span className="sm:hidden">Filters</span>
           </Button>
         </SheetTrigger>
 
@@ -107,14 +146,33 @@ const FiltersBar = () => {
             placeholder="Search location"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="w-40 rounded-l-xl rounded-r-none border-primary border-r-0"
+            className="w-24 sm:w-40 rounded-l-xl rounded-r-none border-primary border-r-0 text-xs sm:text-sm"
           />
           <Button
             onClick={handleLocationSearch}
-            className="rounded-r-xl rounded-l-none border-l-none border-primary shadow-none border cursor-pointer"
+            className="rounded-r-xl rounded-l-none shadow-none cursor-pointer px-2 sm:px-3"
+            size="sm"
           >
-            <Search className="w-4 h-4" />
+            <Search className="w-3 h-3 sm:w-4 sm:h-4" />
           </Button>
+          {filters.useLocationFilter && (
+            <Button
+              onClick={() => {
+                setSearchInput("All Locations");
+                dispatch(
+                  setFilters({
+                    location: "All Locations",
+                    useLocationFilter: false,
+                  })
+                );
+              }}
+              variant="outline"
+              className="rounded-xl ml-1 border-primary text-primary hover:bg-secondary text-xs px-1 sm:px-2"
+              size="sm"
+            >
+              <X className="w-3 h-3 sm:w-4 sm:h-4"/>
+            </Button>
+          )}
         </div>
 
         {/* minimum price range */}
@@ -125,7 +183,7 @@ const FiltersBar = () => {
               handleFilterChange("priceRange", value, true)
             }
           >
-            <SelectTrigger className="w-34 rounded-xl border-primary text-primary hover:bg-secondary">
+            <SelectTrigger className="w-20 sm:w-34 rounded-xl border-primary text-primary hover:bg-secondary text-xs sm:text-sm">
               <SelectValue>
                 {formatPriceValue(filters.priceRange[0], true)}
               </SelectValue>
@@ -147,7 +205,7 @@ const FiltersBar = () => {
               handleFilterChange("priceRange", value, false)
             }
           >
-            <SelectTrigger className="w-34 rounded-xl border-primary text-primary hover:bg-secondary">
+            <SelectTrigger className="w-20 sm:w-34 rounded-xl border-primary text-primary hover:bg-secondary text-xs sm:text-sm">
               <SelectValue>
                 {formatPriceValue(filters.priceRange[1], false)}
               </SelectValue>
@@ -169,7 +227,7 @@ const FiltersBar = () => {
             value={filters.beds}
             onValueChange={(value) => handleFilterChange("beds", value, null)}
           >
-            <SelectTrigger className="w-34 rounded-xl border-primary text-primary hover:bg-secondary">
+            <SelectTrigger className="w-16 sm:w-34 rounded-xl border-primary text-primary hover:bg-secondary text-xs sm:text-sm">
               <SelectValue placeholder="beds" />
             </SelectTrigger>
             <SelectContent className="bg-white">
@@ -186,7 +244,7 @@ const FiltersBar = () => {
             value={filters.baths}
             onValueChange={(value) => handleFilterChange("baths", value, null)}
           >
-            <SelectTrigger className="w-34 rounded-xl border-primary text-primary hover:bg-secondary">
+            <SelectTrigger className="w-16 sm:w-34 rounded-xl border-primary text-primary hover:bg-secondary text-xs sm:text-sm">
               <SelectValue placeholder="baths" />
             </SelectTrigger>
             <SelectContent className="bg-white">
@@ -205,7 +263,7 @@ const FiltersBar = () => {
             handleFilterChange("propertyType", value, null)
           }
         >
-          <SelectTrigger className="w-40 rounded-xl border-primary text-primary hover:bg-secondary">
+          <SelectTrigger className="w-20 sm:w-40 rounded-xl border-primary text-primary hover:bg-secondary text-xs sm:text-sm">
             <SelectValue placeholder="Home Type" />
           </SelectTrigger>
           <SelectContent className="bg-white text-primary">
@@ -222,8 +280,8 @@ const FiltersBar = () => {
         </Select>
       </div>
 
-      {/* view mode */}
-      <div className="flex justify-between items-center gap-4 p-2">
+      {/* view mode - hidden on mobile since listings are in a sheet */}
+      <div className="hidden md:flex justify-between items-center gap-4 p-2">
         <div className="flex border rounded-xl">
           <Button
             variant="ghost"

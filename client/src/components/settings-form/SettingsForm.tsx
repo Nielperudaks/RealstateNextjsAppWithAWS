@@ -32,7 +32,7 @@ const SettingsForm = ({
   return (
     <div className="pt-8 pb-5 px-8">
       <div className="mb-5">
-        <h1 className="text-xl font-semibold ">
+        <h1 className="text-xl text-primary font-semibold ">
           {`${userType.charAt(0).toUpperCase() + userType.slice(1)} Settings`}
         </h1>
         <p className="text-sm text-shadow-gray-900 mt-1">
@@ -45,12 +45,13 @@ const SettingsForm = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6"
           >
-            <CustomFormField name="name" label="Name" disabled={!editMode} />
+            <CustomFormField name="name" label="Name" disabled={!editMode} className="" />
             <CustomFormField
               name="email"
               label="Email"
               type="email"
               disabled={!editMode}
+              
             />
             <CustomFormField
               name="phoneNumber"
@@ -61,14 +62,14 @@ const SettingsForm = ({
               <Button
                 type="button"
                 onClick={toggleEditMode}
-                className="bg-background text-foreground hover:bg-secondary shadow-md"
+                className="bg-secondary text-secondary-foreground hover:bg-secondary shadow border"
               >
                 {editMode ? "Cancel" : "Edit"}
               </Button>
               {editMode && (
                 <Button
                   type="submit"
-                  className="bg-primary text-primary-foreground cursor:pointer shadow-md"
+                  className="bg-primary text-primary-foreground border shadow"
                 >
                   Save Changes
                 </Button>

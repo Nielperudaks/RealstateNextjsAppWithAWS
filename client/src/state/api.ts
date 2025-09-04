@@ -86,7 +86,7 @@ export const api = createApi({
     //property related endpoints
     getProperties: build.query<
       Property[],
-      Partial<FiltersState> & { favoriteIds?: number[] }
+      Partial<FiltersState> & { favoriteIds?: number[]; useLocationFilter?: boolean }
     >({
       query: (filters) => {
         const params = cleanParams({
@@ -105,8 +105,11 @@ export const api = createApi({
           favoriteIds: Array.isArray(filters.favoriteIds)
             ? filters.favoriteIds.join(",")
             : undefined,
-          latitude: filters.coordinates?.[1],
-          longitude: filters.coordinates?.[0],
+          // Only include coordinates if location filtering is explicitly requested
+          ...(filters.useLocationFilter && filters.coordinates && {
+            latitude: filters.coordinates[1],
+            longitude: filters.coordinates[0],
+          }),
         });
 
         return { url: "properties", params };
@@ -278,6 +281,21 @@ export const api = createApi({
         });
       },
     }),
+    deleteProperty: build.mutation<{ message: string }, number>({
+      query: (propertyId) => ({
+        url: `properties/${propertyId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [
+        { type: "Properties", id: "LIST" },
+      ],
+      async onQueryStarted(_, { queryFulfilled }) {
+        await withToast(queryFulfilled, {
+          success: "Property has been deleted",
+          error: "Failed to delete property.",
+        });
+      },
+    }),
     updateManagerSettings: build.mutation<
       Manager,
       { cognitoID: string } & Partial<Manager>
@@ -328,6 +346,16 @@ export const api = createApi({
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
           error: "Failed to get payments.",
+        });
+      },
+    }),
+
+    getPropertyPayments: build.query<Payment[], number>({
+      query: (propertyId) => `properties/${propertyId}/payments`,
+      providesTags: ["Payments"],
+      async onQueryStarted(_, { queryFulfilled }) {
+        await withToast(queryFulfilled, {
+          error: "Failed to get property payments.",
         });
       },
     }),
@@ -403,9 +431,11 @@ export const {
   useGetCurrentResidencesQuery,
   useGetLeasesQuery,
   useGetPaymentsQuery,
+  useGetPropertyPaymentsQuery,
   useGetManagerPropertiesQuery,
   useGetPropertyLeasesQuery,
   useCreatePropertyMutation,
+  useDeletePropertyMutation,
   useCreateApplicationMutation,
   useGetApplicationsQuery,
   useUpdateApplicationStatusMutation,

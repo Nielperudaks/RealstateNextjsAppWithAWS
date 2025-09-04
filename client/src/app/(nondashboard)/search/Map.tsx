@@ -15,6 +15,8 @@ const Map = () => {
 
   const filters = useAppSelector((state) => state.global.filters);
 
+  // Use the same filters as the listings - this will show all properties initially,
+  // and filtered properties when location search is performed
   const {
     data: properties,
     isLoading,
@@ -30,8 +32,8 @@ const Map = () => {
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: "mapbox://styles/nielperuda/cmeu5qa4j00hv01si2dfia413",
-      center: [-74.5, 40], // ✅ fallback (always valid)
-      zoom: 10,
+      center: [120.9842, 14.5995], // Philippines coordinates [longitude, latitude]
+      zoom: 6, // Lower zoom to see more of Philippines
     });
 
     mapRef.current.on("load", () => {
@@ -45,23 +47,62 @@ const Map = () => {
   }, []);
 
   /**
-   * 2. Fly to filters.coordinates AFTER Redux hydration
+   * 2. Handle map view based on location filtering
    */
   useEffect(() => {
     if (!mapRef.current || !filters.coordinates) return;
 
-    mapRef.current.flyTo({
-      center: filters.coordinates,
-      zoom: 10,
-      essential: true,
-    });
+    if (filters.useLocationFilter) {
+      // When location filtering is enabled, fly to the searched location
+      const [lng, lat] = filters.coordinates;
 
-    // Ensure tiles actually rerender
-    setTimeout(() => mapRef.current?.resize(), 200);
-  }, [filters.coordinates]); // runs after hydration
+      // Validate coordinates before using them
+      if (lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90) {
+        mapRef.current.flyTo({
+          center: [lng, lat],
+          zoom: 10,
+          essential: true,
+        });
+
+        // Ensure tiles actually rerender
+        setTimeout(() => mapRef.current?.resize(), 200);
+      } else {
+        console.error("Invalid coordinates in filters:", filters.coordinates);
+      }
+    } else {
+      // When location filtering is disabled, return to Philippines default view
+      mapRef.current.flyTo({
+        center: [120.9842, 14.5995], // Philippines coordinates
+        zoom: 6,
+        essential: true,
+      });
+
+      setTimeout(() => mapRef.current?.resize(), 200);
+    }
+  }, [filters.coordinates, filters.useLocationFilter]);
 
   /**
-   * 3. Update property markers when API data changes
+   * 3. Handle container resize (for sidebar open/close)
+   */
+  useEffect(() => {
+    if (!mapRef.current || !mapContainerRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      // Small delay to ensure DOM has updated
+      setTimeout(() => {
+        mapRef.current?.resize();
+      }, 100);
+    });
+
+    resizeObserver.observe(mapContainerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
+  /**
+   * 4. Update property markers when API data changes
    */
   useEffect(() => {
     if (!mapRef.current || isLoading || isError || !properties) return;
@@ -83,11 +124,10 @@ const Map = () => {
   }, [properties, isLoading, isError]);
 
   return (
-    <div className="basis-5/12 grow relative rounded-xl">
+    <div className="md:basis-5/12 grow relative rounded-xl w-full h-full">
       <div
-        className="map-container rounded-xl"
+        className="map-container rounded-xl w-full h-full"
         ref={mapContainerRef}
-        style={{ height: "100%", width: "100%" }}
       />
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-xl z-10">
@@ -104,11 +144,11 @@ const Map = () => {
 };
 
 const createPropertyMarker = (property: Property, map: mapboxgl.Map) => {
+  const lng = property.location.coordinates.longitude;
+  const lat = property.location.coordinates.latitude;
+
   const marker = new mapboxgl.Marker()
-    .setLngLat([
-      property.location.coordinates.longitude,
-      property.location.coordinates.latitude,
-    ])
+    .setLngLat([lng, lat])
     .setPopup(
       new mapboxgl.Popup().setHTML(
         `

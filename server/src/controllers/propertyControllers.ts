@@ -160,11 +160,9 @@ export const getProperty = async (
       },
     });
     if (!property) {
-
       res.status(404).json({ message: "Property not found" });
     }
     if (property) {
-     
       const coordinates: { coordinates: string }[] =
         await prisma.$queryRaw`SELECT ST_asText(coordinates) as coordinates from "Location"  where id= ${property.location.id}`;
 
@@ -188,6 +186,92 @@ export const getProperty = async (
     res
       .status(500)
       .json({ message: `error retrieving property${error.message}` });
+  }
+};
+
+export const deleteProperty = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const propertyId = Number(id);
+
+    if (!propertyId) {
+      res.status(400).json({ message: "Property ID is required" });
+      return;
+    }
+
+    // Check if property exists and get related records
+    const property = await prisma.property.findUnique({
+      where: { id: propertyId },
+      include: {
+        location: true,
+        leases: true,
+        applications: true,
+      },
+    });
+
+    if (!property) {
+      res.status(404).json({ message: "Property not found" });
+      return;
+    }
+
+    // Check if property has active leases or applications
+    const hasActiveLeases = property.leases && property.leases.length > 0;
+    const hasApplications =
+      property.applications && property.applications.length > 0;
+
+    if (hasActiveLeases || hasApplications) {
+      const issues = [];
+      if (hasActiveLeases) issues.push(`${property.leases.length} lease(s)`);
+      if (hasApplications)
+        issues.push(`${property.applications.length} application(s)`);
+
+      res.status(400).json({
+        message: `Cannot delete property "${
+          property.name
+        }" because it has associated ${issues.join(
+          " and "
+        )}. Please remove these first or contact support.`,
+      });
+      return;
+    }
+
+    // If no blocking relationships, proceed with deletion
+    // Delete the property first
+    await prisma.property.delete({
+      where: { id: propertyId },
+    });
+
+    // Delete the associated location if it exists
+    if (property.locationId) {
+      try {
+        await prisma.location.delete({
+          where: { id: property.locationId },
+        });
+      } catch (locationError) {
+        // Location might be shared or already deleted, log but don't fail
+        console.warn(
+          `Could not delete location ${property.locationId}:`,
+          locationError
+        );
+      }
+    }
+
+    res.json({ message: "Property deleted successfully" });
+  } catch (error: any) {
+    // Handle specific database constraint errors
+    if (error.code === "P2003") {
+      res.status(400).json({
+        message:
+          "Cannot delete property because it has associated records (leases, applications, or tenants). Please remove these relationships first.",
+      });
+    } else {
+      res
+        .status(500)
+        .json({ message: `Error deleting property: ${error.message}` });
+    }
   }
 };
 
@@ -225,7 +309,8 @@ export const createProperty = async (
     //   })
     // );
 
-    const geocodingUrl = `https://nominatim.openstreetmap.org/search?${new URLSearchParams(
+    // Try geocoding with the full address first
+    let geocodingUrl = `https://nominatim.openstreetmap.org/search?${new URLSearchParams(
       {
         street: address,
         city,
@@ -235,18 +320,46 @@ export const createProperty = async (
         limit: "1",
       }
     ).toString()}`;
-    const geocodingResponse = await axios.get(geocodingUrl, {
+
+    let geocodingResponse = await axios.get(geocodingUrl, {
       headers: {
         "User-Agent": "RealEstateApp (renielperuda2@gmail.com)",
       },
     });
-    const [longitude, latitude] =
-      geocodingResponse.data[0]?.lon && geocodingResponse.data[0]?.lat
-        ? [
-            parseFloat(geocodingResponse.data[0]?.lon),
-            parseFloat(geocodingResponse.data[0]?.lat),
-          ]
-        : [0, 0];
+
+    // If no results, try with just city and country
+    if (!geocodingResponse.data || geocodingResponse.data.length === 0) {
+      geocodingUrl = `https://nominatim.openstreetmap.org/search?${new URLSearchParams(
+        {
+          city,
+          country,
+          format: "json",
+          limit: "1",
+        }
+      ).toString()}`;
+
+      geocodingResponse = await axios.get(geocodingUrl, {
+        headers: {
+          "User-Agent": "RealEstateApp (renielperuda2@gmail.com)",
+        },
+      });
+    }
+
+    let longitude: number;
+    let latitude: number;
+
+    if (geocodingResponse.data[0]?.lon && geocodingResponse.data[0]?.lat) {
+      longitude = parseFloat(geocodingResponse.data[0].lon);
+      latitude = parseFloat(geocodingResponse.data[0].lat);
+    } else {
+      // If geocoding fails completely, use Philippines center coordinates as fallback
+      // This is better than [0, 0] which places markers in the ocean
+      longitude = 120.9842; // Philippines longitude
+      latitude = 14.5995; // Philippines latitude
+      console.warn(
+        `Geocoding failed for address: ${address}, ${city}, ${country}. Using Philippines fallback coordinates.`
+      );
+    }
 
     // create location
     const [location] = await prisma.$queryRaw<Location[]>`

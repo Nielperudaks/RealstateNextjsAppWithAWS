@@ -8,7 +8,7 @@ interface InitialStateTypes{
 
 export const initialState: InitialStateTypes = {
   filters:{
-    location: "Los Angeles",
+    location: "All Locations",
   beds: "any",
   baths: "any",
   propertyType: "any",
@@ -16,7 +16,8 @@ export const initialState: InitialStateTypes = {
   availableFrom: "any",
   priceRange: [null, null],
   squareFeet:  [null, null],
-  coordinates: [-118.25, 34.05] //120.9842, 14.5995 manila
+  coordinates: [120.9842, 14.5995], // Philippines coordinates [longitude, latitude]
+  useLocationFilter: false
   },
   isFiltersFullOpen: false,
   viewMode: "grid"
@@ -32,7 +33,8 @@ export interface FiltersState{
   availableFrom: string;
   priceRange: [number, number] | [null, null];
   squareFeet: [number, number] | [null, null];
-  coordinates: [number, number]
+  coordinates: [number, number];
+  useLocationFilter: boolean;
 }
 
 export const globalSlice = createSlice({

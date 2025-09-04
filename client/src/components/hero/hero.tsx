@@ -34,13 +34,14 @@ const Hero01 = () => {
         dispatch(
           setFilters({
             location: trimmedQuery,
-            coordinates: [lat, lng],
+            coordinates: [lng, lat], // Store as [longitude, latitude] to match the rest of the app
+            useLocationFilter: true, // Enable location filtering when searching from hero
           })
         );
         const params = new URLSearchParams({
           location: trimmedQuery,
-          lat: lat.toString(),
-          lng: lng,
+          coordinates: `${lng},${lat}`, // Store as lng,lat in URL
+          useLocationFilter: "true",
         });
         router.push(`/search?${params.toString()}`);
       }

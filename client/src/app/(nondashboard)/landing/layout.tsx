@@ -21,12 +21,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       ) {
         router.push("/managers/properties", { scroll: false });
       }
-      // else if (
-      //   (userRole === "tenant" && pathname.startsWith("/properties")) ||
-      //   (userRole === "tenant" && pathname === "/")
-      // ) {
-      //   router.push("/tenant/search", { scroll: false });
-      // }
+      else if (
+        (userRole === "tenant" && pathname.startsWith("/properties")) ||
+        (userRole === "tenant" && pathname === "/")
+      ) {
+        router.push("/tenant/search", { scroll: false });
+      }
     } else {
       setIsLoading(false);
     }

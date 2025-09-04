@@ -54,7 +54,7 @@ export function UserNav() {
       <Button
         variant="default"
         size="sm"
-        className="hidden md:flex items-center gap-2"
+        className="flex items-center gap-2"
         onClick={() =>
           router.push(
             authUser.userRole?.toLowerCase() === "manager"
@@ -66,12 +66,12 @@ export function UserNav() {
         {authUser.userRole?.toLowerCase() === "manager" ? (
           <>
             <Plus className="h-4 w-4" />
-            Add Property
+            <span className="hidden md:block">Add Property</span>
           </>
         ) : (
           <>
             <Search className="h-4 w-4" />
-            Search
+            <span className="hidden md:block">Search</span>
           </>
         )}
       </Button>

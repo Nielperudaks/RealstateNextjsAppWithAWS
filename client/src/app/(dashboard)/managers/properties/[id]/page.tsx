@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGetLeasesQuery, useGetPaymentsQuery, useGetPropertyLeasesQuery, useGetPropertyQuery } from "@/state/api";
+import { useGetLeasesQuery, useGetPropertyPaymentsQuery, useGetPropertyLeasesQuery, useGetPropertyQuery } from "@/state/api";
 import { ArrowDownToLine, ArrowLeft, Check, Download } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -29,7 +29,7 @@ const PropertyTenants = () => {
     useGetPropertyLeasesQuery(propertyId);
 
   const { data: payments, isLoading: paymenytsLoading } =
-    useGetPaymentsQuery(propertyId);
+    useGetPropertyPaymentsQuery(propertyId);
 
   if (PropertyLoading || leasesLoading || paymenytsLoading) return <Loading />;
 

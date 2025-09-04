@@ -50,13 +50,13 @@ export function Sidebar() {
                   : "translate-x-0 opacity-100"
               )}
             >
-              Rent<span className="text-foreground font-light">itful</span>
+              Rent<span className="font-light text-primary">ease</span>
             </h1>
           </Link>
         </Button>
         <Menu
           isOpen={getOpenState()}
-          userType={authUser?.userRole.toLowerCase()}
+          userType={authUser?.userRole.toLowerCase() as "manager" || "tenant"}
         />
       </div>
     </aside>

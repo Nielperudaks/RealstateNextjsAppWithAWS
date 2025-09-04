@@ -9,32 +9,7 @@ import {
   faGithub,
 } from "@fortawesome/free-brands-svg-icons";
 
-const footerLinks = [
-  {
-    title: "Overview",
-    href: "#",
-  },
-  {
-    title: "Features",
-    href: "#",
-  },
-  {
-    title: "Pricing",
-    href: "#",
-  },
-  {
-    title: "Careers",
-    href: "#",
-  },
-  {
-    title: "Help",
-    href: "#",
-  },
-  {
-    title: "Privacy",
-    href: "#",
-  },
-];
+
 
 const Footer05Page = () => {
   return (
@@ -62,19 +37,10 @@ const Footer05Page = () => {
                 <line x1="120" y1="120" x2="120" y2="160" />
               </g>
             </svg>
-            <h1 className="font-bold text-2xl">Rentiful</h1>
+            <h1 className="font-bold text-2xl text-primary">Rent<span className="font-light">ease</span></h1>
           </div>
-          <ul className="mt-6 flex items-center gap-4 flex-wrap">
-            {footerLinks.map(({ title, href }) => (
-              <li key={title}>
-                <Link
-                  href={href}
-                  className="text-muted-foreground hover:text-foreground font-medium"
-                >
-                  {title}
-                </Link>
-              </li>
-            ))}
+          <ul className="mt-6 flex items-center">
+              A simple rental system using Next.js, Shadcn, and AWS
           </ul>
         </div>
         <Separator />
@@ -89,16 +55,16 @@ const Footer05Page = () => {
           </span>
 
           <div className="flex items-center gap-5 text-muted-foreground">
-            <a href="#" aria-label="facebook" className="hover:text-gray-500">
+            <a href="https://www.facebook.com/niel.peruda" aria-label="facebook" className="hover:text-gray-500">
               <FontAwesomeIcon icon={faFacebook} className="h6 w-6" />
             </a>
-            <a href="#" aria-label="instagram" className="hover:text-gray-500">
+            <a href="https://www.instagram.com/peruducks/" aria-label="instagram" className="hover:text-gray-500">
               <FontAwesomeIcon icon={faInstagram} className="h6 w-6" />
             </a>
-            <a href="#" aria-label="linkedin" className="hover:text-gray-500">
+            <a href="https://www.linkedin.com/in/reniel-peruda-14106a346" aria-label="linkedin" className="hover:text-gray-500">
               <FontAwesomeIcon icon={faLinkedin} className="h6 w-6" />
             </a>
-            <a href="#" aria-label="github" className="hover:text-gray-500">
+            <a href="https://github.com/Nielperudaks" aria-label="github" className="hover:text-gray-500">
               <FontAwesomeIcon icon={faGithub} className="h6 w-6" />
             </a>
           </div>

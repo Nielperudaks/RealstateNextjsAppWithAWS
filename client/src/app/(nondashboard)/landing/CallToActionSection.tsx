@@ -40,15 +40,15 @@ const CallToActionSection = () => {
               Discover a wide range of rental properties in your desired
               location
             </p>
-            <div className="flex justify-center md:justify-start gap-4">
+            <div className="flex justify-center  gap-4">
               <button
-                className="inline-block text-black bg-white rounded-lg px-6 py-3 font-semibold hover:bg-gray-900 hover:text-white"
+                className="inline-block text-secondary-foreground hover:bg-secondary/90 bg-secondary rounded-lg px-6 py-3 font-semibold "
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               >
                 Search
               </button>
               <Link href="/signup" scroll={false}>
-                <button className="inline-block text-white bg-primary rounded-lg px-6 py-3 font-semibold hover:bg-gray-200 hover:text-primary">
+                <button className="inline-block text-primary-foreground bg-primary rounded-lg px-6 py-3 font-semibold hover:bg-primary/90">
                   {" "}
                   Signup
                 </button>
