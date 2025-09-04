@@ -903,4 +903,121 @@ body,
 [data-amplify-authenticator] button:not(.amplify-button--primary):not([aria-label*="password"]):hover {
   text-decoration: underline !important;
   color: #A44040 !important;
+}/*
+ Loading Skeleton Animations */
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.dark .shimmer {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-pulse {
+  animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .7;
+  }
+}
+
+/* Responsive skeleton adjustments */
+@media (max-width: 768px) {
+  .skeleton-filters {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .skeleton-filters > div {
+    width: 100% !important;
+  }
+  
+  .skeleton-main-content {
+    flex-direction: column;
+  }
+  
+  .skeleton-listings {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .skeleton-navbar {
+    padding: 0 1rem;
+  }
+  
+  .skeleton-content {
+    padding: 0 1rem;
+  }
+}/* Lo
+ading Component Top Layer Styles */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background-color: hsl(var(--background));
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dark .loading-overlay {
+  background-color: hsl(var(--background));
+}
+
+/* Ensure loading elements are above everything */
+.loading-navbar {
+  z-index: 10000 !important;
+}
+
+.loading-sidebar {
+  z-index: 10001 !important;
+}
+
+/* Prevent body scroll when loading */
+body.loading-active {
+  overflow: hidden;
+}
+
+/* Loading component specific z-index hierarchy */
+.skeleton-pulse {
+  z-index: 9999 !important;
+}
+
+.skeleton-pulse > * {
+  position: relative;
+  z-index: 10000;
+}
+
+/* Ensure no other elements can appear above loading */
+.skeleton-pulse::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+  background: inherit;
+  pointer-events: none;
 }

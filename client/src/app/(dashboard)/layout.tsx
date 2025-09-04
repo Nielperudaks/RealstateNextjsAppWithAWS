@@ -2,6 +2,7 @@
 
 import AdminPanelLayout from "@/components/admin-panel/admin-panel-layout";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
+import Loading from "@/components/loading/Loading";
 import { useGetAuthUserQuery } from "@/state/api";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -37,7 +38,7 @@ export default function Layout({
   }, [authUser, authLoading, router, pathname]);
 
   if (authLoading || isLoading) {
-    return <div>Loading...</div>;
+     return <Loading />;
   }
 
   if (!authUser?.userRole) return null;

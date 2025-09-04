@@ -4,11 +4,51 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight, CirclePlay, Search } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Input } from "../ui/input";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
+import { setFilters } from "@/state";
 
 const Hero01 = () => {
+  const dispatch = useDispatch();
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+
+  const handleLocationSearch = async () => {
+    try {
+      const trimmedQuery = searchQuery.trim();
+      if (!trimmedQuery) return;
+
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+          trimmedQuery
+        )}.json?access_token=${
+          process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+        }&fuzzyMatch=true`
+      );
+      const data = await response.json();
+      if (data.features && data.features.length > 0) {
+        const [lng, lat] = data.features[0].center;
+        dispatch(
+          setFilters({
+            location: trimmedQuery,
+            coordinates: [lat, lng],
+          })
+        );
+        const params = new URLSearchParams({
+          location: trimmedQuery,
+          lat: lat.toString(),
+          lng: lng,
+        });
+        router.push(`/search?${params.toString()}`);
+      }
+    } catch (error) {
+      console.error("error search location:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
       <Image
@@ -30,13 +70,22 @@ const Hero01 = () => {
             Start your journey to finding perfect place to call home
           </h1>
           <p className="mt-6 text-[17px] md:text-lg text-white">
-            Explore our wide range of rental properties tailored to fit your lifestyle and needs!
+            Explore our wide range of rental properties tailored to fit your
+            lifestyle and needs!
           </p>
           <div className="mt-12 flex items-center justify-center">
-            <Input type="text" value="" onChange={() => {}} placeholder="Search by city, neighborhood or address" 
-            className="w-full max-w-lg rounded-none rounded-l-full border-none bg-white h-12 "></Input>
-            <Button onClick={()=> {}} className="bg-primary text-white rounded-none rounded-r-full border-none hover:bg-stone-800 h-12 ">
-              <Search/> Search
+            <Input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by city, neighborhood or address"
+              className="w-full max-w-lg rounded-none rounded-l-full border-none bg-white h-12 "
+            ></Input>
+            <Button
+              onClick={handleLocationSearch}
+              className="bg-primary text-primary-foreground rounded-none rounded-r-full border-none h-12 "
+            >
+              <Search /> Search
             </Button>
           </div>
         </div>

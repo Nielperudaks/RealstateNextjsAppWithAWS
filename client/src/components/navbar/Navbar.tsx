@@ -32,6 +32,7 @@ const Navbar04Page = () => {
 
   const isDashboardPage =
     pathname.includes("/managers") || pathname.includes("/tenants");
+    
   const handleSignOut = async () => {
     await signOut();
     window.location.href = "/";

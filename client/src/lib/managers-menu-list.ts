@@ -56,7 +56,7 @@ export function getManagerMenuList(pathname: string): Group[] {
       groupLabel: "Settings",
       menus: [
         {
-          href: "/managers/Settings",
+          href: "/managers/settings",
           label: "Settings",
           icon: Users
         }
